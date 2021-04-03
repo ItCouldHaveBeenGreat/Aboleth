@@ -1,0 +1,76 @@
+{
+  "actions": {
+    "multi_attack": {
+      "attacks": [
+        {
+          "attack": "bludgeon",
+          "quantity": 2
+        }
+      ],
+      "type": "multi_attack"
+    },
+    "bludgeon": {
+      "additional": "",
+      "attack_type": "melee",
+      "damage_string": "2d8 + 4",
+      "damage_type": "bludgeoning",
+      "expected_damage": 13,
+      "name": "Bludgeon",
+      "reach": 5,
+      "target": "one target",
+      "to_hit": 7,
+      "type": "attack"
+    }
+  },
+  "alignment": "neutral good",
+  "armor_class": 18,
+  "attributes": {
+    "cha": 10,
+    "con": 20,
+    "dex": 4,
+    "int": 10,
+    "str": 18,
+    "wis": 10
+  },
+  "challenge": 5,
+  "damage_immunities": [
+    "lightning",
+    "necrotic",
+    "cold"
+  ],
+  "damage_resistances": [
+    "force",
+    "fire",
+    "radiant",
+    "bludgeoning, piercing, and slashing from nonmagical attacks"
+  ],
+  "damage_vulnerabilities": [
+    "acid"
+  ],
+  "family": "construct",
+  "features": {
+
+  },
+  "hit_points": 160,
+  "languages": [
+    "common", "undercommon"
+  ],
+  "movement_options": [
+    {
+      "note": "",
+      "speed": 20,
+      "type": "walk"
+    }
+  ],
+  "name": "Hoardmind",
+  "saving_throws": {
+    "con": 6
+  },
+  "senses": [
+    "passive perception 15"
+  ],
+  "size": "large",
+  "skills": {
+    "perception": 5
+  }
+}
