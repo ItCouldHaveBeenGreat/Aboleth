@@ -100,8 +100,11 @@ def get_spellcasting_feature_array(monster_data):
             if save_only_spellcasting_features:
                 return [int(save_only_spellcasting_features.group(1)), 0]
             else:
-                raise Exception(
-                    'Unknown spellcasting format: ' + monster_data['features']['Innate Spellcasting']['description'])
+                # The only thing that has trouble with this so far is the Nycanloth, whose spells have neither
+                # save nor ability modifier. In this case, we want to return [0, 0], but keep printing the message
+                # just in case...
+                print('Unknown spellcasting format: ' + monster_data['features']['Innate Spellcasting']['description'])
+                return [0, 0]
     else:
         return [0, 0]
 
@@ -119,7 +122,7 @@ def get_damage_per_round(monster_data):
         expected_damage = 0
         for attack in monster_data['actions']['multi_attack']['attacks']:
             if 'optional' in attack and attack['optional']:
-                print('Ignoring optional feature: ' + str(attack))
+                print('Ignoring optional multi-attack feature: ' + str(attack))
                 continue
             elif attack['attack'] in monster_data['actions']:
                 expected_damage += __get_expected_damage_from_attack(monster_data['actions'][attack['attack']]) * \

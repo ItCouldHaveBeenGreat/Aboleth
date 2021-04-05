@@ -1,8 +1,6 @@
 # from sklearn.linear_model import LinearRegression
 from matplotlib import pyplot as plt
 import json
-import math
-import re
 import sys
 import time
 import traceback
@@ -83,14 +81,16 @@ def render_data(regressor, monster_data):
     cr_predictions = regressor.predict(monster_features)
     monster_crs_errors = cr_predictions - monster_crs
 
-    # Plot outputs
-    fig, ax = plt.subplots()
-    render_prediction_accuracy(ax, monster_names, monster_crs, monster_crs_errors)
-    fig.plot()
+    # Plot everything useful!
+    fig, ax = plt.subplots(nrows=3, ncols=1, figsize=(10, 20))
+    render_prediction_accuracy(ax[0], monster_names, monster_crs, monster_crs_errors)
+    render_cr_to_health(ax[1], monster_data)
+    render_cr_to_damage(ax[2], monster_data)
+    plt.show()
 
 
 def render_prediction_accuracy(ax, monster_names, monster_crs, monster_crs_errors):
-    ax.scatter(monster_crs, monster_crs_errors, color='black')
+    ax.scatter(monster_crs, monster_crs_errors, s=1, color='black')
 
     CLOSE_ENOUGH_FACTOR = 0.05
     for i in range(0, len(monster_names)):
@@ -100,11 +100,48 @@ def render_prediction_accuracy(ax, monster_names, monster_crs, monster_crs_error
             color = 'blue'
         elif error_percent > CLOSE_ENOUGH_FACTOR:
             color = 'red'
-        ax.annotate(monster_names[i], (monster_crs[i], monster_crs_errors[i]), color=color)
+        ax.annotate(monster_names[i], (monster_crs[i], monster_crs_errors[i]), color=color, fontsize=6)
 
     ax.set_title('Prediction Accuracy')
     ax.set_xlabel('cr actual')
     ax.set_ylabel('cr prediction - cr actual')
+
+
+def render_cr_to_health(ax, monster_data):
+    monster_crs = []
+    monster_health = []
+    monster_names = []
+    for monster_datum in monster_data:
+        monster_crs.append(monster_datum['challenge'])
+        monster_health.append(monster_datum['hit_points'])
+        monster_names.append(monster_datum['name'])
+
+    ax.scatter(monster_crs, monster_health, s=1, color='black')
+    for i in range(0, len(monster_data)):
+        ax.annotate(monster_names[i], (monster_crs[i], monster_health[i]), color='black', fontsize=6)
+    ax.set_title('CR to Health')
+    ax.set_xlabel('cr')
+    ax.set_ylabel('health')
+
+
+def render_cr_to_damage(ax, monster_data):
+    monster_crs = []
+    monster_damage = []
+    monster_names = []
+    for monster_datum in monster_data:
+        try:
+            monster_damage.append(get_damage_per_round(monster_datum))
+            monster_crs.append(monster_datum['challenge'])
+            monster_names.append(monster_datum['name'])
+        except:
+            print('Ignoring ' + monster_datum['name'] + ' because damage could not be got!')
+
+    ax.scatter(monster_crs, monster_damage, s=1, color='black')
+    for i in range(0, len(monster_crs)):
+        ax.annotate(monster_names[i], (monster_crs[i], monster_damage[i]), color='black', fontsize=6)
+    ax.set_title('CR to Damage')
+    ax.set_xlabel('cr')
+    ax.set_ylabel('damage')
 
 
 def run_train_render_evaluate(monster_data_location, monster_data_to_evaluate_location):
