@@ -1,0 +1,68 @@
+[
+    {
+        "actions": {
+            "staff": {
+                "additional": "or 3 (1d8 ",
+                "attack_type": "melee",
+                "damage_string": "1d6 - 1",
+                "damage_type": "bludgeoning",
+                "expected_damage": 2,
+                "name": "Staff",
+                "reach": 5,
+                "target": "one target",
+                "to_hit": 2,
+                "type": "attack"
+            }
+        },
+        "alignment": "neutral evil",
+        "armor_class": 12,
+        "attributes": {
+            "cha": 12,
+            "con": 10,
+            "dex": 14,
+            "int": 17,
+            "str": 9,
+            "wis": 13
+        },
+        "challenge": 7.0,
+        "family": "humanoid (elf)",
+        "features": {
+            "Fey Ancestry": {
+                "description": "The drow has advantage on saving throws against being charmed, and magic can't put the drow to sleep."
+            },
+            "Innate Spellcasting": {
+                "description": "The drow's innate spellcasting ability is Charisma (spell save DC 12). It can innately cast the following spells, requiring no material components:"
+            },
+            "Spellcasting": {
+                "description": "The drow is a 10th-level spellcaster. Its spellcasting ability is Intelligence (spell save DC 14, +6 to hit with spell attacks). The drow has the following wizard spells prepared:"
+            },
+            "Sunlight Sensitivity": {
+                "description": "While in sunlight, the drow has disadvantage on attack rolls, as well as on Wisdom (Perception) checks that rely on sight."
+            }
+        },
+        "hit_points": 45,
+        "languages": [
+            "elvish",
+            "undercommon"
+        ],
+        "movement_options": [
+            {
+                "note": "",
+                "speed": 30,
+                "type": "walk"
+            }
+        ],
+        "name": "Drow Mage",
+        "senses": [
+            "darkvision 120 ft.",
+            "passive perception 14"
+        ],
+        "size": "medium",
+        "skills": {
+            "arcana": 6,
+            "deception": 5,
+            "perception": 4,
+            "stealth": 5
+        }
+    }
+]
