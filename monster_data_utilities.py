@@ -2,34 +2,39 @@ import math
 import re
 
 
-def get_special_feature_array(monster_data):
-    # Yes/No boolean values for the most common and interesting features
-    feature_array = [0] * 4
-    # TODO: Parse out the number of resistances.... but almost all have 3?
-    if 'Legendary Resistance (3/Day)' in monster_data['features']:
-        feature_array[0] = 1
-    if 'Magic Resistance' in monster_data['features']:
-        feature_array[1] = 1
-    if 'Pack Tactics' in monster_data['features']:
-        feature_array[2] = 1
-    if 'Regeneration' in monster_data['features']:
-        feature_array[3] = 1
-        # This is assuming the text is always the same here...
-    return feature_array
+
+def get_expected_damage_from_dice_string(dice_string):
+    dice_string_regex = r'([0-9]+)d([0-9]+) ?([\+|\-] [0-9]+)?'
+    dice_result = re.search(dice_string_regex, dice_string)
+    if dice_result:
+        dice_multiplier = int(dice_result.group(1))
+        dice_faces = int(dice_result.group(2))
+        # Isn't this nuts? Conventional scope rules blanche at this!
+        if dice_result.lastindex > 2:
+            flat_modifier = int(dice_result.group(3).translate(str.maketrans('', '', ' +'))) # clean number; '+ 5' -> '5'
+        else:
+            flat_modifier = 0
+        return dice_multiplier * (dice_faces + 1 / 2.0) + flat_modifier
+    else:
+        raise Exception('Unknown dice string  format: ' + dice_string)
+
+# --------------------------
+
+
 
 
 def convert_damage_type_lists_to_feature_array(immunity_type_list, resistance_type_list, vulnerability_type_list):
-    feature_array = [2] * len(global_type_dict.keys())
+    feature_array = [1] * len(global_type_dict.keys())
     immunity_features = convert_damage_type_list_to_feature_array(immunity_type_list)
     resistance_features = convert_damage_type_list_to_feature_array(resistance_type_list)
     vulnerability_features = convert_damage_type_list_to_feature_array(vulnerability_type_list)
     for i in range(0, len(feature_array)):
         if immunity_features[i] == 1:
-            feature_array[i] = 0
+            feature_array[i] = 3
         elif vulnerability_features[i] == 1:
-            feature_array[i] = 4
+            feature_array[i] = 0
         elif resistance_features[i] == 1:
-            feature_array[i] = 1
+            feature_array[i] = 2
     return feature_array
 
 
@@ -115,23 +120,30 @@ def __get_expected_damage_from_attack(attack):
         damage += attack['secondary_expected_damage']
     return damage
 
+# Critical features are expected damage, to hit, damage types, probably with an array of size... 5
 
-def get_damage_per_round(monster_data):
-    # TODO: Factor in secondary damage
+def get_attack_features(monster_data):
+    attack_features = []
+    maximum_expected_damage = 0
     if 'multi_attack' in monster_data['actions']:
-        expected_damage = 0
         for attack in monster_data['actions']['multi_attack']['attacks']:
             if 'optional' in attack and attack['optional']:
-                print('Ignoring optional multi-attack feature: ' + str(attack))
+                # print('Ignoring optional multi-attack feature: ' + str(attack))
                 continue
             elif attack['attack'] in monster_data['actions']:
-                expected_damage += __get_expected_damage_from_attack(monster_data['actions'][attack['attack']]) * \
-                                   attack[
-                                       'quantity']
+                expected_damage = __get_expected_damage_from_attack(monster_data['actions'][attack['attack']]) * \
+                                  attack[
+                                      'quantity']
+                to_hit = monster_data['actions'][attack['attack']]['to_hit']
+                attack_features.append([to_hit, expected_damage])
+                maximum_expected_damage = max(expected_damage, maximum_expected_damage)
             elif attack['attack'].rstrip('s') in monster_data['actions']:
                 attack_without_plural = attack['attack'].rstrip('s')
-                expected_damage += __get_expected_damage_from_attack(monster_data['actions'][attack_without_plural]) * \
+                expected_damage = __get_expected_damage_from_attack(monster_data['actions'][attack_without_plural]) * \
                                    attack['quantity']
+                to_hit = monster_data['actions'][attack_without_plural]['to_hit']
+                attack_features.append([to_hit, expected_damage])
+                maximum_expected_damage = max(expected_damage, maximum_expected_damage)
             else:
                 # Some stat blocks don't actually have multi-attacks that reference the actual attacks, e.g
                 # animated-armor; multi-attack references melee, the actual attack is named slam. Tjuck?!
@@ -139,18 +151,24 @@ def get_damage_per_round(monster_data):
                 attacks = [x for x in monster_data['actions'].values() if x['type'] == 'attack']
                 if len(attacks) == 0:
                     raise Exception('Monster has multi-attack with no attacks: ' + str(monster_data))
-                elif len(attacks) == 1:
-                    expected_damage += __get_expected_damage_from_attack(attacks[0])
-                elif len(attacks) > 1:
-                    # For now, just pick the attack with the highest expected damage.
-                    expected_damage += max(
-                        map(lambda attack_data: __get_expected_damage_from_attack(attack_data), attacks))
-        return expected_damage
+                elif len(attacks) >= 1:
+                    expected_damage = __get_expected_damage_from_attack(attacks[0])
+                    to_hit = attacks[0]['to_hit']
+                    attack_features.append([to_hit, expected_damage])
+                    maximum_expected_damage = max(expected_damage, maximum_expected_damage)
     else:
-        expected_damage = 0
-        for attack_name, attack_block in monster_data['actions'].items():
-            expected_damage = max(expected_damage, attack_block['expected_damage'])
-        return expected_damage
+        # Pick the first attack for now
+        for _, action in monster_data['actions'].items():
+            if action['type'] == 'attack':
+                expected_damage = __get_expected_damage_from_attack(action)
+                to_hit = action['to_hit']
+                attack_features.append([to_hit, expected_damage])
+                maximum_expected_damage = max(expected_damage, maximum_expected_damage)
+
+    while len(attack_features) < 5:
+        attack_features.append([0, 0.0])
+    flattened_attack_feature = [item for sublist in attack_features for item in sublist]
+    return [maximum_expected_damage]
 
 
 def __build_global_type_dict():

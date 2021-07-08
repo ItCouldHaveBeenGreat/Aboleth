@@ -166,6 +166,7 @@ def parse_monster_from_aidedd_link(session, url):
                         'quantity': number_string_to_number(simple_multi_attack_attributes.group(1)),
                         'attack': simple_multi_attack_attributes.group(2)})
                     monster_actions['multi_attack'] = multi_attack
+                    # TODO: Split on commas and then parse each attack individually
                 complex_multi_attack_regex = '''Multiattack. The [A-z ]+ makes [A-z]+ attacks: ([A-z]+) with its ([A-z]+) and ([A-z]+) with its ([A-z]+)'''
                 complex_multi_attack_attributes = re.search(complex_multi_attack_regex, feature_html.text)
                 if complex_multi_attack_attributes:
@@ -177,6 +178,7 @@ def parse_monster_from_aidedd_link(session, url):
                         'quantity': number_string_to_number(complex_multi_attack_attributes.group(3)),
                         'attack': complex_multi_attack_attributes.group(4)})
                     monster_actions['multi_attack'] = multi_attack
+                    # TODO: Split on commas and then parse each attack individually
                 really_complex_multi_attack_regex = '''Multiattack. The [A-z ]+ can use its ([A-z ]+). It then makes [A-z]+ attacks: ([A-z]+) with its ([A-z]+) and ([A-z]+) with its ([A-z]+)'''
                 really_complex_multi_attack_attributes = re.search(really_complex_multi_attack_regex, feature_html.text)
                 if really_complex_multi_attack_attributes:
@@ -240,8 +242,8 @@ def get_urls_to_query(session):
 if __name__ == '__main__':
     session = requests.Session()
     monster_json = []
-    output_location = 'C:/Users/homel/PycharmProjects/Aboleth/monster_data.json'
-    # output_location = 'C:/Users/homel/PycharmProjects/Aboleth/test_output.json'
+    #output_location = 'C:/Users/homel/PycharmProjects/Aboleth/monster_data.json'
+    output_location = 'C:/Users/homel/PycharmProjects/Aboleth/test_output.json'
     urls = get_urls_to_query(session)
     read_limit = 5000
     urls_read = 0
