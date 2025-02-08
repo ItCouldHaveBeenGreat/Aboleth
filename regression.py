@@ -6,7 +6,6 @@ import traceback
 from sklearn.neural_network import MLPRegressor
 from five_e_tools_json_wrapper import FiveEToolsJSONWrapper
 
-# from joblib import dump, load # For model load/storage
 
 def fit_to_data(training_monster_data):
     # TODO: Eventually, consider a train test split. X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=1)
