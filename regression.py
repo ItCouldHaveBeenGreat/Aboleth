@@ -58,13 +58,13 @@ def repeatedly_evaluate_data_from_file(regressor, monster_data_to_evaluate_locat
         with open(monster_data_to_evaluate_location, 'r') as monster_data_to_score_file:
             try:
                 potential_monster_data_to_score = json.load(monster_data_to_score_file)
+                if potential_monster_data_to_score != monster_data_to_score:
+                    monster_data_to_score = potential_monster_data_to_score
+                    features = FiveEToolsJSONWrapper(monster_data_to_score).get_features_array()
+                    print('Features: ' + str(features))
+                    print('Predicted CR: ' + str(regressor.predict([features])))
             except:
                 print("Invalid JSON!")
-            if potential_monster_data_to_score != monster_data_to_score:
-                monster_data_to_score = potential_monster_data_to_score
-                features = monster_data_to_score.get_features_array()
-                print('Features: ' + str(features))
-                print('Predicted CR: ' + str(regressor.predict(features)))
         time.sleep(2)
 
 
@@ -75,4 +75,4 @@ if __name__ == '__main__':
     monster_data = parse_monster_data_from_file(monster_data_location)
     regressor = fit_to_data(monster_data)
     #render_data(regressor, monster_data)
-    #repeatedly_evaluate_data_from_file(regressor, monster_data_to_evaluate_location)
+    repeatedly_evaluate_data_from_file(regressor, monster_data_to_evaluate_location)
